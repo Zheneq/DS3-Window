@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
+#define _USE_MATH_DEFINES
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,17 +12,16 @@
 #include "../../DS3/Inih/cpp/INIREADER.h"
 #include "field.h"
 
+
 using namespace std;
 
 double lt, ts;
 field *data;
 vector<double> centr, halfw;
 
-FILE *GetFile(char *name)
-{
-	FILE *f = fopen(name, "w");
-	return f;
-}
+int idxte(double t) { return (int)(round(t / ts)); }
+double realte(int i) { return i*ts; }
+double realspect(int i) { return 2 * M_PI * i / lt; }
 
 void Init(int argc, char **argv)
 {
@@ -85,11 +85,46 @@ void Init(int argc, char **argv)
 	fclose(f);
 }
 
+double WndFunc(double t0, double tau, double t)
+{
+	return exp(-pow((t - t0) / tau, 8));
+}
+
 int main(int argc, char **argv)
 {
 	try
 	{
 		Init(argc, argv);
+
+		for (int i = 0; i < (int)(centr.size()); ++i)
+		{
+			auto t = new field, w = new field;
+			t->Init(data->GetLen(), FFTW_ESTIMATE);
+			w->Init(data->GetLen(), FFTW_ESTIMATE);
+			for (int j = 0; j < t->GetLen(); ++j)
+			{
+				w->data[j] = WndFunc(centr[i], halfw[i], realte(j));
+				t->data[j] = data->data[j] * w->data[j];
+			}
+			t->Fourier();
+
+			char name[256];
+
+			sprintf(name, "res/gfx2-%03d.txt", i);
+			FILE *f = fopen(name, "w");
+			data->DumpFullPrecision(f, NULL);
+			fprintf(f, "\n\n");
+			w->DumpFullPrecision(f, NULL);
+			fclose(f);
+
+			sprintf(name, "res/gfx-%03d.txt", i);
+			FILE *f1 = fopen(name, "w");
+			sprintf(name, "res/gfx-%03d-spec.txt", i);
+			FILE *f2 = fopen(name, "w");
+			t->DumpFullPrecision(f1, f2);
+			fclose(f1);
+			fclose(f2);
+		}
 	}
 	catch (char *error)
 	{

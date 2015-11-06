@@ -3,8 +3,8 @@
 #include "../FFTW/fftw3.h"
 
 // Forward decl
-double realxe(int i);
-double realspec(int i);
+double realte(int i);
+double realspect(int i);
 
 class field
 {
@@ -20,10 +20,7 @@ public:
 	void Fourier(bool back = false);
 	void Free();
 	int GetLen() { return n; }
-	void Dump(char *name, double(*transform)(int) = realxe, double(*transformspec)(int) = realspec);
-	void DumpFullPrecision(char *name, double(*transform)(int) = realxe, double(*transformspec)(int) = realspec);
-	void Dump(FILE *DataFile, FILE *SpecFile, double(*transform)(int) = realxe, double(*transformspec)(int) = realspec);
-	void DumpFullPrecision(FILE *DataFile, FILE *SpecFile, double(*transform)(int) = realxe, double(*transformspec)(int) = realspec);
+	void DumpFullPrecision(FILE *DataFile, FILE *SpecFile, double(*transform)(int) = realte, double(*transformspec)(int) = realspect);
 };
 
 FILE *GetFile(char *);

@@ -46,21 +46,8 @@ void field::Free()
 	free(data);
 }
 
-void field::DumpFullPrecision(char *name, double(*transform)(int), double(*transformspec)(int))
-{
-	char fn[256];
-	sprintf(fn, "%s-spec", name);
-
-	FILE *f = GetFile(name), *fs = GetFile(fn);
-	DumpFullPrecision(f, fs, transform, transformspec);
-	fclose(f);
-	fclose(fs);
-}
-
 void field::DumpFullPrecision(FILE *DataFile, FILE *SpecFile, double(*transform)(int), double(*transformspec)(int))
 {
-	char fn[256];
-
 	if (DataFile)
 	{
 		for (int i = 0; i < n; ++i)
